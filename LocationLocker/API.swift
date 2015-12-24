@@ -8,9 +8,32 @@
 
 import Alamofire
 import SwiftyJSON
+import CoreLocation
 
 class API {
     
+    let searchURL = "https://maps.googleapis.com/maps/api/place/nearbysearch/json"
+    // let searchURL = "http://eventsatnjit.jayravaliya.com/api/v0.2/events"
     
+    func checkIn(keyword : String, latitude : CLLocationDegrees, longitude : CLLocationDegrees, completion : (success : Bool, data : JSON)->Void) {
+        
+        let parameters : [String : AnyObject] = [
+            "rankby" : "distance",
+            "location" : "\(latitude),\(longitude)",
+            "key" : "AIzaSyAeryvEAf5PNAmqcC6zAdQq2glGwQISTXI",
+            "keyword" : keyword
+        ]
+        
+        Alamofire.request(Method.GET, searchURL, parameters: parameters, encoding: ParameterEncoding.URL, headers: nil).responseJSON { (response) -> Void in
+            
+            if(response.result.isSuccess) {
+                completion(success: true, data: JSON(data: response.data!))
+            }
+            else {
+                completion(success: false, data: nil)
+            }
+        }
+        
+    }
     
 }
