@@ -8,6 +8,7 @@
 
 import UIKit
 import CoreLocation
+import SwiftyJSON
 
 class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, CLLocationManagerDelegate {
 
@@ -21,6 +22,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     var locationLocker : AnyObject!
     var locationWishlist : AnyObject!
     var currentData : NSMutableArray!
+    var jsonData : JSON!
     
     /* Location Manager */
     var locationManager : CLLocationManager!
@@ -29,6 +31,9 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         super.viewDidLoad()
         
         self.view.backgroundColor = UIColor.whiteColor()
+        
+        NSUserDefaults.standardUserDefaults().removeObjectForKey("locker")
+        NSUserDefaults.standardUserDefaults().removeObjectForKey("wishlist")
         
         /* Locker vs Wishlist SegmentedControl */
         segmentedControl = UISegmentedControl(items: ["Locker","Wishlist"])
@@ -59,11 +64,15 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         noLocationsLabel = UILabel(frame: CGRect(x: 0, y: Standard.screenHeight/2-20, width: Standard.screenWidth, height: 40))
         noLocationsLabel.text = "No locations yet - add some!"
         noLocationsLabel.textAlignment = NSTextAlignment.Center
+        noLocationsLabel.font = UIFont(name: "RobotoSlab-Regular", size: 24)
+        noLocationsLabel.adjustsFontSizeToFitWidth = true
+        
+        jsonData = []
         
         /* Get all locations */
         self.returnLocations()
         self.currentData = self.locationLocker as! NSMutableArray
-        
+
     }
     
     override func viewDidAppear(animated: Bool) {
@@ -77,8 +86,14 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     }
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let cell : UITableViewCell = tableView.dequeueReusableCellWithIdentifier("cell")!
-        cell.textLabel?.text = String(currentData[indexPath.row])
+        var cell : UITableViewCell = tableView.dequeueReusableCellWithIdentifier("cell")!
+        cell = UITableViewCell(style: UITableViewCellStyle.Subtitle, reuseIdentifier: "cell")
+        cell.textLabel?.text = String(currentData[indexPath.row][0])
+        cell.textLabel?.font = UIFont(name: "RobotoSlab-Bold", size: 20)
+        cell.detailTextLabel?.text = String(currentData[indexPath.row][1])
+        cell.detailTextLabel?.font = UIFont(name: "RobotoSlab-Regular", size: 12)
+        
+        cell.accessoryType = UITableViewCellAccessoryType.DisclosureIndicator
         return cell
     }
     
@@ -99,6 +114,10 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             self.deleteLocation(indexPath.row)
             tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: UITableViewRowAnimation.Fade)
         }
+    }
+    
+    func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
+        return 75.0
     }
 
     func addElement(sender : UIButton) {

@@ -67,7 +67,10 @@ class AddLocation : UIViewController, UITableViewDataSource, UITableViewDelegate
         var cell = tableView.dequeueReusableCellWithIdentifier("cell")!
         cell = UITableViewCell(style: UITableViewCellStyle.Subtitle, reuseIdentifier: "cell")
         cell.textLabel?.text = self.results["results"][indexPath.row]["name"].stringValue
+        cell.textLabel?.font = UIFont(name: "RobotoSlab-Regular", size: 20)
+        
         cell.detailTextLabel?.text = self.results["results"][indexPath.row]["vicinity"].stringValue
+        cell.detailTextLabel?.font = UIFont(name: "RobotoSlab-Light", size: 12)
         return cell
     }
     
@@ -78,6 +81,10 @@ class AddLocation : UIViewController, UITableViewDataSource, UITableViewDelegate
     
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return results["results"].count
+    }
+    
+    func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
+        return 60.0
     }
     
     func updateSearchResultsForSearchController(searchController: UISearchController) {
@@ -104,7 +111,7 @@ class AddLocation : UIViewController, UITableViewDataSource, UITableViewDelegate
         }
     }
     
-    func addLocation(name : String, key : String) {
+    func addLocation(name : String, place_id : String, key : String) {
         let userDefaults = NSUserDefaults.standardUserDefaults()
         var arr = userDefaults.objectForKey(key)
         
@@ -115,8 +122,10 @@ class AddLocation : UIViewController, UITableViewDataSource, UITableViewDelegate
             arr = arr!.mutableCopy() as! NSMutableArray
         }
         
-        arr!.addObject(name)
+        arr!.addObject([name, place_id])
         userDefaults.setObject(arr, forKey: key)
+        userDefaults.synchronize()
+        print(NSUserDefaults.standardUserDefaults().objectForKey("locker"))
     }
     
     func openAlertController(row : Int) {
@@ -124,14 +133,14 @@ class AddLocation : UIViewController, UITableViewDataSource, UITableViewDelegate
         alertController = UIAlertController(title: "Add Location", message: "Add this location!", preferredStyle: UIAlertControllerStyle.ActionSheet)
         
         alertController.addAction(UIAlertAction(title: "Add to Locker", style: UIAlertActionStyle.Default, handler: { (action) -> Void in
-            self.addLocation(self.results["results"][row]["name"].stringValue, key: "locker")
+            self.addLocation(self.results["results"][row]["name"].stringValue, place_id: self.results["results"][row]["place_id"].stringValue, key: "locker")
             self.dismissViewControllerAnimated(true, completion: { () -> Void in
                 
             })
         }))
         
         alertController.addAction(UIAlertAction(title: "Add to Wishlist", style: UIAlertActionStyle.Default, handler: { (action) -> Void in
-            self.addLocation(self.results["results"][row]["name"].stringValue, key: "wishlist")
+            self.addLocation(self.results["results"][row]["name"].stringValue, place_id: self.results["results"][row]["place_id"].stringValue, key: "wishlist")
             self.dismissViewControllerAnimated(true, completion: { () -> Void in
                 
             })

@@ -18,10 +18,11 @@ class API {
     func checkIn(keyword : String, latitude : CLLocationDegrees, longitude : CLLocationDegrees, completion : (success : Bool, data : JSON)->Void) {
         
         let parameters : [String : AnyObject] = [
-            "rankby" : "distance",
+            "rankby" : "prominence",
             "location" : "\(latitude),\(longitude)",
             "key" : "AIzaSyAeryvEAf5PNAmqcC6zAdQq2glGwQISTXI",
-            "keyword" : keyword
+            "radius" : "50000"
+            // "keyword" : keyword
         ]
         
         Alamofire.request(Method.GET, searchURL, parameters: parameters, encoding: ParameterEncoding.URL, headers: nil).responseJSON { (response) -> Void in
